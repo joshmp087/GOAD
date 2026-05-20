@@ -1,0 +1,16 @@
+Subject: Welcome to the team
+
+Hey Emma,
+
+Welcome aboard! IT got your workstation and accounts provisioned while
+you were out, so you should be all set for your first day. Your domain
+login is emma.reyes.
+
+For the temporary password I just used the nickname the design team has
+been calling you since the rebrand launch - "princess". Change it once
+you're settled in, but it'll get you logged in for now.
+
+If anything looks off, ping the helpdesk and we'll sort it out.
+
+Best,
+Sara

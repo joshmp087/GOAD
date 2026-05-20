@@ -1,1 +1,1 @@
-Set-ADUser -Identity "jon.snow" -ServicePrincipalNames @{Add='HTTP/thewallserver'}
+Set-ADUser -Identity "connor.larson" -ServicePrincipalNames @{Add='HTTP/intranetserver'}

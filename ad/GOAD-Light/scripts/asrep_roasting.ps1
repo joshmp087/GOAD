@@ -1,1 +1,1 @@
-Get-ADUser -Identity "brandon.stark" | Set-ADAccountControl -DoesNotRequirePreAuth:$true
+Get-ADUser -Identity "brandon.sproles" | Set-ADAccountControl -DoesNotRequirePreAuth:$true
