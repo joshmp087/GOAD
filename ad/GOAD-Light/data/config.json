@@ -2,7 +2,7 @@
 "lab" : {
     "hosts" : {
         "dc01" : {
-            "hostname" : "DC01",
+            "hostname" : "TUC-DC01",
             "type" : "dc",
             "local_admin_password": "8dCT-DJjgScp",
             "domain" : "cybersaguaros.local",
@@ -43,19 +43,19 @@
             }
         },
         "dc02" : {
-            "hostname" : "MKT-DC01",
+            "hostname" : "TUC-DC02",
             "type" : "dc",
             "local_admin_password": "NgtI75cKV+Pu",
-            "domain" : "marketing.cybersaguaros.local",
-            "path" : "DC=marketing,DC=cybersaguaros,DC=local",
+            "domain" : "tumamoc.cybersaguaros.local",
+            "path" : "DC=tumamoc,DC=cybersaguaros,DC=local",
             "local_groups" : {
                 "Administrators" : [
-                    "marketing\\joshua.payne",
-                    "marketing\\jordan.lanham",
-                    "marketing\\paul.wagner"
+                    "tumamoc\\joshua.payne",
+                    "tumamoc\\jordan.lanham",
+                    "tumamoc\\paul.wagner"
                 ],
                 "Remote Desktop Users" : [
-                    "marketing\\MarketingTeam"
+                    "tumamoc\\FieldStaff"
                 ]
             },
             "scripts" : [
@@ -73,16 +73,16 @@
                     "setup": "c:\\setup"
                 },
                 "credentials" : {
-                    "TERMSRV/MKT-WEB01": {
-                        "username" : "marketing\\paul.wagner",
+                    "TERMSRV/TUC-SRV02": {
+                        "username" : "tumamoc\\paul.wagner",
                         "secret"   : "football",
-                        "runas"    : "marketing\\paul.wagner",
+                        "runas"    : "tumamoc\\paul.wagner",
                         "runas_password" : "football"
                     }
                 },
                 "autologon" : {
                     "paul.wagner" : {
-                        "username" : "marketing\\paul.wagner",
+                        "username" : "tumamoc\\paul.wagner",
                         "password" : "football"
                     }
                 },
@@ -103,20 +103,20 @@
             }
         },
         "srv02" : {
-            "hostname" : "MKT-WEB01",
+            "hostname" : "TUC-SRV02",
             "type" : "server",
             "local_admin_password": "NgtI75cKV+Pu",
-            "domain" : "marketing.cybersaguaros.local",
-            "path" : "DC=marketing,DC=cybersaguaros,DC=local",
+            "domain" : "tumamoc.cybersaguaros.local",
+            "path" : "DC=tumamoc,DC=cybersaguaros,DC=local",
             "use_laps": false,
             "local_groups" : {
                 "Administrators" : [
-                    "marketing\\joseph.mickelson"
+                    "tumamoc\\joseph.mickelson"
                 ],
                 "Remote Desktop Users" : [
-                    "marketing\\ContentTeam",
-                    "marketing\\BrandTeam",
-                    "marketing\\MarketingTeam"
+                    "tumamoc\\SurveyTeam",
+                    "tumamoc\\LabTeam",
+                    "tumamoc\\FieldStaff"
                 ]
             },
             "scripts" : [],
@@ -148,20 +148,20 @@
                 "sa_password": "Sup1_sa_P@ssw0rd!",
                 "svcaccount" : "svc_mssql",
                 "sysadmins" : [
-                    "MARKETING\\connor.larson"
+                    "TUMAMOC\\connor.larson"
                 ],
                 "executeaslogin" : {
-                    "MARKETING\\jacob.williams" : "sa",
-                    "MARKETING\\brandon.sproles" :  "MARKETING\\connor.larson"
+                    "TUMAMOC\\jacob.williams" : "sa",
+                    "TUMAMOC\\brandon.sproles" :  "TUMAMOC\\connor.larson"
                 },
                 "executeasuser" : {
                     "emma_master_dbo": {
-                        "user": "MARKETING\\emma.reyes",
+                        "user": "TUMAMOC\\emma.reyes",
                         "db"  : "master",
                         "impersonate" : "dbo"
                     },
                     "emma_dbms_dbo": {
-                        "user": "MARKETING\\emma.reyes",
+                        "user": "TUMAMOC\\emma.reyes",
                         "db"  : "msdb",
                         "impersonate" : "dbo"
                     }
@@ -170,40 +170,40 @@
         }
     },
     "domains" : {
-        "marketing.cybersaguaros.local" : {
+        "tumamoc.cybersaguaros.local" : {
             "dc": "dc02",
             "domain_password" : "NgtI75cKV+Pu",
-            "netbios_name": "MARKETING",
+            "netbios_name": "TUMAMOC",
             "trust" : "",
-            "laps_path": "OU=Laps,DC=marketing,DC=cybersaguaros,DC=local",
+            "laps_path": "OU=Laps,DC=tumamoc,DC=cybersaguaros,DC=local",
             "organisation_units" : {
             },
             "groups" : {
                 "universal" : {},
                 "global" : {
-                    "MarketingTeam" : {
+                    "FieldStaff" : {
                         "managed_by" : "joshua.payne",
-                        "path" : "CN=Users,DC=marketing,DC=cybersaguaros,DC=local"
+                        "path" : "CN=Users,DC=tumamoc,DC=cybersaguaros,DC=local"
                     },
-                    "ContentTeam" : {
+                    "SurveyTeam" : {
                         "managed_by" : "joseph.mickelson",
-                        "path" : "CN=Users,DC=marketing,DC=cybersaguaros,DC=local"
+                        "path" : "CN=Users,DC=tumamoc,DC=cybersaguaros,DC=local"
                     },
-                    "BrandTeam" : {
+                    "LabTeam" : {
                         "managed_by" : "joseph.mickelson",
-                        "path" : "CN=Users,DC=marketing,DC=cybersaguaros,DC=local"
+                        "path" : "CN=Users,DC=tumamoc,DC=cybersaguaros,DC=local"
                     }
                 },
                 "domainlocal" : {
-                    "MarketingResources" : {
-                        "path" : "CN=Users,DC=marketing,DC=cybersaguaros,DC=local"
+                    "FieldResources" : {
+                        "path" : "CN=Users,DC=tumamoc,DC=cybersaguaros,DC=local"
                     }
                 }
             },
             "multi_domain_groups_member" : {},
             "acls" : {
-                "anonymous_rpc" : {"for": "NT AUTHORITY\\ANONYMOUS LOGON", "to": "DC=marketing,DC=cybersaguaros,DC=local", "right": "ReadProperty", "inheritance": "All"},
-                "anonymous_rpc2" : {"for": "NT AUTHORITY\\ANONYMOUS LOGON", "to": "DC=marketing,DC=cybersaguaros,DC=local", "right": "GenericExecute", "inheritance": "All"}
+                "anonymous_rpc" : {"for": "NT AUTHORITY\\ANONYMOUS LOGON", "to": "DC=tumamoc,DC=cybersaguaros,DC=local", "right": "ReadProperty", "inheritance": "All"},
+                "anonymous_rpc2" : {"for": "NT AUTHORITY\\ANONYMOUS LOGON", "to": "DC=tumamoc,DC=cybersaguaros,DC=local", "right": "GenericExecute", "inheritance": "All"}
             },
             "users" : {
                 "emma.reyes" : {
@@ -212,8 +212,8 @@
                     "password"    : "princess",
                     "city"        : "Tucson, AZ",
                     "description" : "Emma Reyes",
-                    "groups"      : ["MarketingTeam"],
-                    "path"        : "CN=Users,DC=marketing,DC=cybersaguaros,DC=local"
+                    "groups"      : ["FieldStaff"],
+                    "path"        : "CN=Users,DC=tumamoc,DC=cybersaguaros,DC=local"
                 },
                 "joshua.payne" : {
                     "firstname"   : "Joshua",
@@ -221,8 +221,8 @@
                     "password"    : "Hbr4-Gp9q-Lm2x",
                     "city"        : "Tucson, AZ",
                     "description" : "Joshua Payne",
-                    "groups"      : ["MarketingTeam", "Domain Admins"],
-                    "path"        : "CN=Users,DC=marketing,DC=cybersaguaros,DC=local"
+                    "groups"      : ["FieldStaff", "Domain Admins"],
+                    "path"        : "CN=Users,DC=tumamoc,DC=cybersaguaros,DC=local"
                 },
                 "jordan.lanham" : {
                     "firstname"   : "Jordan",
@@ -230,8 +230,8 @@
                     "password"    : "Saguaro-Bloom-2024",
                     "city"        : "Tucson, AZ",
                     "description" : "Jordan Lanham",
-                    "groups"      : ["MarketingTeam"],
-                    "path"        : "CN=Users,DC=marketing,DC=cybersaguaros,DC=local"
+                    "groups"      : ["FieldStaff"],
+                    "path"        : "CN=Users,DC=tumamoc,DC=cybersaguaros,DC=local"
                 },
                 "paul.wagner" : {
                     "firstname"   : "Paul",
@@ -239,8 +239,8 @@
                     "password"    : "football",
                     "city"        : "Tucson, AZ",
                     "description" : "Paul Wagner",
-                    "groups"      : ["MarketingTeam"],
-                    "path"        : "CN=Users,DC=marketing,DC=cybersaguaros,DC=local"
+                    "groups"      : ["FieldStaff"],
+                    "path"        : "CN=Users,DC=tumamoc,DC=cybersaguaros,DC=local"
                 },
                 "sara.holt" : {
                     "firstname"   : "Sara",
@@ -248,9 +248,9 @@
                     "password"    : "Mktg-Portal-99",
                     "city"        : "Tucson, AZ",
                     "description" : "Sara Holt",
-                    "groups"      : ["MarketingTeam"],
-                    "path"        : "CN=Users,DC=marketing,DC=cybersaguaros,DC=local",
-                    "spns"        : ["HTTP/crm-app.marketing.cybersaguaros.local"]
+                    "groups"      : ["FieldStaff"],
+                    "path"        : "CN=Users,DC=tumamoc,DC=cybersaguaros,DC=local",
+                    "spns"        : ["HTTP/fieldportal.tumamoc.cybersaguaros.local"]
                 },
                 "brandon.sproles" : {
                     "firstname"   : "Brandon",
@@ -258,8 +258,8 @@
                     "password"    : "superman",
                     "city"        : "Tucson, AZ",
                     "description" : "Brandon Sproles",
-                    "groups"      : ["MarketingTeam"],
-                    "path"        : "CN=Users,DC=marketing,DC=cybersaguaros,DC=local"
+                    "groups"      : ["FieldStaff"],
+                    "path"        : "CN=Users,DC=tumamoc,DC=cybersaguaros,DC=local"
                 },
                 "rick.holt" : {
                     "firstname"   : "Rick",
@@ -267,8 +267,8 @@
                     "password"    : "Autumn2025!",
                     "city"        : "Tucson, AZ",
                     "description" : "Rick Holt",
-                    "groups"      : ["MarketingTeam"],
-                    "path"        : "CN=Users,DC=marketing,DC=cybersaguaros,DC=local"
+                    "groups"      : ["FieldStaff"],
+                    "path"        : "CN=Users,DC=tumamoc,DC=cybersaguaros,DC=local"
                 },
                 "kiosk.user" : {
                     "firstname"   : "Kiosk",
@@ -276,8 +276,8 @@
                     "password"    : "Lobby-Kiosk-01",
                     "city"        : "Tucson, AZ",
                     "description" : "Shared lobby kiosk account",
-                    "groups"      : ["MarketingTeam"],
-                    "path"        : "CN=Users,DC=marketing,DC=cybersaguaros,DC=local"
+                    "groups"      : ["FieldStaff"],
+                    "path"        : "CN=Users,DC=tumamoc,DC=cybersaguaros,DC=local"
                 },
                 "connor.larson" : {
                     "firstname"   : "Connor",
@@ -285,9 +285,9 @@
                     "password"    : "letmein",
                     "city"        : "Tucson, AZ",
                     "description" : "Connor Larson",
-                    "groups"      : ["MarketingTeam", "ContentTeam"],
-                    "path"        : "CN=Users,DC=marketing,DC=cybersaguaros,DC=local",
-                    "spns"        : ["HTTP/intranet.marketing.cybersaguaros.local"]
+                    "groups"      : ["FieldStaff", "SurveyTeam"],
+                    "path"        : "CN=Users,DC=tumamoc,DC=cybersaguaros,DC=local",
+                    "spns"        : ["HTTP/intranet.tumamoc.cybersaguaros.local"]
                 },
                 "jacob.williams" : {
                     "firstname"   : "Jacob",
@@ -295,8 +295,8 @@
                     "password"    : "Content-Draft-7",
                     "city"        : "Tucson, AZ",
                     "description" : "Jacob Williams (Password : Content-Draft-7)",
-                    "groups"      : ["ContentTeam"],
-                    "path"        : "CN=Users,DC=marketing,DC=cybersaguaros,DC=local"
+                    "groups"      : ["SurveyTeam"],
+                    "path"        : "CN=Users,DC=tumamoc,DC=cybersaguaros,DC=local"
                 },
                 "joseph.mickelson" : {
                     "firstname"   : "Joseph",
@@ -304,8 +304,8 @@
                     "password"    : "Spr1ng-2025!",
                     "city"        : "Tucson, AZ",
                     "description" : "Joseph Mickelson",
-                    "groups"      : ["ContentTeam", "BrandTeam"],
-                    "path"        : "CN=Users,DC=marketing,DC=cybersaguaros,DC=local"
+                    "groups"      : ["SurveyTeam", "LabTeam"],
+                    "path"        : "CN=Users,DC=tumamoc,DC=cybersaguaros,DC=local"
                 },
                 "svc_mssql" : {
                     "firstname"   : "MSSQL",
@@ -314,8 +314,8 @@
                     "city"        : "Tucson, AZ",
                     "description" : "MSSQL service account",
                     "groups"      : [],
-                    "path"        : "CN=Users,DC=marketing,DC=cybersaguaros,DC=local",
-                    "spns"        : ["MSSQLSvc/MKT-WEB01.marketing.cybersaguaros.local:1433","MSSQLSvc/MKT-WEB01.marketing.cybersaguaros.local"]
+                    "path"        : "CN=Users,DC=tumamoc,DC=cybersaguaros,DC=local",
+                    "spns"        : ["MSSQLSvc/TUC-SRV02.tumamoc.cybersaguaros.local:1433","MSSQLSvc/TUC-SRV02.tumamoc.cybersaguaros.local"]
                 }
             }
         },
@@ -375,8 +375,8 @@
                 "addmember_leadershipboard_projectalpha" : {"for": "LeadershipBoard", "to": "ProjectAlpha", "right": "Ext-Write-Self-Membership", "inheritance": "All"},
                 "write_owner_projectalpha_securityteam" : {"for": "ProjectAlpha", "to": "SecurityTeam", "right": "WriteOwner", "inheritance": "None"},
                 "GenericAll_securityteam_steven" : {"for": "SecurityTeam", "to": "steven.banks", "right": "GenericAll", "inheritance": "None"},
-                "GenericAll_steven_dc" : {"for": "steven.banks", "to": "DC01$", "right": "GenericAll", "inheritance": "None"},
-                "GenericAll_group_corporateresources_dc" : {"for": "CorporateResources", "to": "DC01$", "right": "GenericAll", "inheritance": "None"},
+                "GenericAll_steven_dc" : {"for": "steven.banks", "to": "TUC-DC01$", "right": "GenericAll", "inheritance": "None"},
+                "GenericAll_group_corporateresources_dc" : {"for": "CorporateResources", "to": "TUC-DC01$", "right": "GenericAll", "inheritance": "None"},
                 "GenericAll_victor_domadmin" : {"for": "victor.ramos", "to": "Domain Admins", "right": "GenericAll", "inheritance": "None"},
                 "GenericAll_victor_domadmin_holder" : {"for": "victor.ramos", "to": "CN=AdminSDHolder,CN=System,DC=cybersaguaros,DC=local", "right": "GenericAll", "inheritance": "None"},
                 "WriteDACL_ryan_Headquarters" : {"for": "ryan.banks", "to": "OU=Headquarters,DC=cybersaguaros,DC=local", "right": "WriteDacl", "inheritance": "None"}
