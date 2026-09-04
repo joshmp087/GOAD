@@ -22,11 +22,20 @@
     state: present
     update_cache: true
 
-- name: Install logstash
-  apt:
-    name: logstash
-    state: present
-
+# CYBERCORE: Logstash REMOVED here (install / enable / start), deliberately.
+#   Upstream installs, enables and starts logstash and then configures NO
+#   pipeline anywhere in this role -- no logstash.conf, no pipelines.yml, no
+#   beats input. winlogbeat ships straight to Elasticsearch (see
+#   roles/logs_windows/templates/winlogbeat.yml.j2: output.elasticsearch), so
+#   nothing ever reaches logstash and nothing ever leaves it. It is a JVM
+#   holding ~1 GB to idle.
+#   That is merely wasteful on a throwaway upstream box. Here it is worse: this
+#   role runs once on a staging lab and the result is sealed into golden
+#   template 1012, so the idle JVM is frozen into the image and then runs in
+#   every student lane forever, on lanes that are already RAM-heavy.
+#   If a pipeline is ever actually wanted, restore these three tasks TOGETHER
+#   WITH the config that gives them a reason to exist. Do not "restore" them
+#   from a diff against orange-cyberdefense/GOAD just because they are missing.
 - name: Install java
   apt:
     name: openjdk-11-jre
@@ -64,11 +73,7 @@
     group: "elasticsearch"
     mode: 0660
 
-- name: enable logstash
-  service:
-    name: logstash
-    enabled: yes
-
+# CYBERCORE: 'enable logstash' removed -- see the note above 'Install java'.
 - name: enable elasticsearch
   service:
     name: elasticsearch
@@ -79,11 +84,7 @@
     name: kibana
     enabled: yes
 
-- name: start logstash
-  service:
-    name: logstash
-    state: started
-
+# CYBERCORE: 'start logstash' removed -- see the note above 'Install java'.
 - name: start elasticsearch
   service:
     name: elasticsearch

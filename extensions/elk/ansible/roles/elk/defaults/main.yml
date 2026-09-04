@@ -1,2 +1,23 @@
+# CYBERCORE: 7.x is a DECISION, not an oversight. Do NOT bump this to 8.x.
+#   This value and winlogbeat 7.17.6 in roles/logs_windows/defaults/main.yml are
+#   ONE self-consistent pair, and that pair is what upstream actually tests.
+#
+#   What a bump to 8.x costs, and it is not a version string:
+#     Elasticsearch 8 is secure-by-default -- TLS and authentication ON, with a
+#     bootstrapped elastic password. roles/elk/files/elasticsearch.yml is a
+#     7.x-shaped config with no xpack.security stanza at all, and kibana.yml has
+#     no credentials. So the cluster comes up healthy, Kibana cannot connect to
+#     it, and the whole thing presents to a student as "Kibana is down" -- the
+#     cause named nowhere they will look. Bumping means owning the security
+#     configuration for both files, not editing this line.
+#
+#   What staying on 7.x costs us. Both are real, both are accepted:
+#     1. The CYBR 400 loggen sensor carries a 9.5.0-era Elastic Agent, which
+#        cannot ship into a 7.x cluster -- two majors apart. That sensor's data
+#        does not land here.
+#     2. No detection engine, so no prebuilt Elastic detection rules: this is
+#        search-and-dashboard only. Wazuh is what supplies an alert queue for
+#        blue-team work, and it needs no configuration at all to do it -- which
+#        is a large part of why both extensions exist rather than just one.
 elasticsearch_version: '7.x'
 es_cluster_name: elasticsearch

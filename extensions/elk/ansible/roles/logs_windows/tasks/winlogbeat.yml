@@ -47,12 +47,18 @@
     delete_archive: yes
   when: not winlogbeat_folder.stat.exists
 
-- name: Configure winlogbeat
-  win_template:
+- name: Configure winlogbeat (cybercore-winlogbeat-render - rendered on the controller)
+  ansible.builtin.template:
     src: winlogbeat.yml.j2
-    dest: "{{ winlogbeat_service.install_path_64 }}\\winlogbeat-{{ winlogbeat_service.version }}-windows-x86_64\\winlogbeat.yml"
-  notify: restart-winlogbeat
+    dest: "/tmp/winlogbeat.yml.{{ inventory_hostname }}"
+  delegate_to: localhost
 
+- name: Copy rendered winlogbeat config to windows
+  ansible.windows.win_copy:
+    src: "/tmp/winlogbeat.yml.{{ inventory_hostname }}"
+    dest: "{{ winlogbeat_service.install_path_64 }}\\winlogbeat-{{ winlogbeat_service.version }}-windows-x86_64\\winlogbeat.yml"
+    force: yes
+  notify: restart-winlogbeat
 - name: Install winlogbeat
   win_shell: .\install-service-winlogbeat.ps1
   args:

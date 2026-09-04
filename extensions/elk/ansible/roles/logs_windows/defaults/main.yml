@@ -8,5 +8,13 @@ sysmon_config_url: "https://raw.githubusercontent.com/SwiftOnSecurity/sysmon-con
 winlogbeat_service:
   install_path_64: "C:\\Program Files\\Elastic\\winlogbeat"
   install_path_32: "C:\\Program Files (x86)\\Elastic\\winlogbeat"
+  # CYBERCORE: pinned on purpose. Do NOT bump this on its own.
+  #   7.17.6 is the matched half of elasticsearch_version: '7.x' in
+  #   roles/elk/defaults/main.yml -- a 7.x beat shipping into a 7.x cluster,
+  #   which is the combination upstream tests. Moving this alone desynchronises
+  #   the pair; moving both to 8.x walks into ES 8's secure-by-default posture,
+  #   which this extension's elasticsearch.yml/kibana.yml do not configure for.
+  #   The full trade, including what 7.x costs us, is written out in
+  #   roles/elk/defaults/main.yml. Read it before changing either number.
   version: "7.17.6"
   download: true
