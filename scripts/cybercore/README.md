@@ -63,3 +63,43 @@ Tests use temporary checkout copies and never install into the working fork or
 contact a live controller. They cover all three bases, two to four DNS labels,
 credentials and binary preservation, extension joins, CLI reports, source drift,
 retries, output ownership, symlink refusal, and injected rollback failures.
+
+## Recover WS01 after a hostname or trust failure
+
+`repair-ws01.yml` is an explicit manual recovery for a generated CyberCore lab
+whose WS01 extension was already configured. It is never run by the normal
+deployment chain. Correct the controller, domain controllers, and workstation
+clocks first; the playbook refuses a workstation more than two minutes from the
+controller's UTC time.
+
+On that lane's controller, use its saved inventories and extra variables:
+
+```sh
+R=/var/lib/goad-run
+ANSIBLE_CONFIG=/opt/goad/ansible/ansible.cfg ansible-playbook \
+  -i "$R/inventory_proxmox" \
+  -i "$R/inventory_ext_ws01" \
+  -i "$R/inventory_ext_elk" \
+  -i "$R/inventory_overrides" \
+  /opt/goad/scripts/cybercore/repair-ws01.yml \
+  --limit ws01 --extra-vars "@$R/extra_vars.yml" \
+  --extra-vars '{"cybercore_repair_ws01":true}'
+```
+
+Omit the ELK inventory argument if that extension was not selected. Run the same
+command with `--syntax-check` first. Keep the normal credential overrides last;
+do not substitute the initial Administrator overlay. No passwords belong in the
+command. The playbook reads `domain_name` from the saved extra variables, checks
+that it names a generated lab before reading its files, and requires the main
+configuration, rewritten WS01 configuration, and compiler identity report to
+agree. It refuses a domain controller or a workstation joined to another forest.
+
+The recovery stops and disables Cloudbase-Init on this GOAD workstation, leaves
+the broken membership, reboots, and joins using the hostname and credentials
+from the generated configuration. A second reboot verifies the active and
+pending names and secure channel. Credential-bearing tasks are hidden from
+Ansible output. The installed `ansible.windows.win_domain_membership` module
+(1.11.0) performs the transitions; a checked local-unjoin fallback handles a
+missing current-name AD account. No AD computer object is deleted. A successful
+normal unjoin can disable the old account, and the desired existing account is
+reused on join. Already healthy canonical membership skips the unjoin/join.

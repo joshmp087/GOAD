@@ -1,0 +1,212 @@
+---
+# Explicit manual recovery only; never imported by the deployment chain.
+# Run only after the controller, domain controllers, and WS01 clocks agree.
+- name: Restore this GOAD workstation's canonical identity and trust
+  hosts: ws01
+  gather_facts: false
+  any_errors_fatal: true
+  vars:
+    cc_main: "{{ cc_main_data.lab }}"
+    cc_extension: "{{ cc_extension_data.lab_extension }}"
+    cc_name: "{{ cc_extension.hosts.ws01.hostname }}"
+    cc_domain: "{{ cc_extension.hosts.ws01.domain }}"
+    cc_domain_user: "{{ admin_user | default('administrator') }}@{{ cc_domain }}"
+    cc_domain_password: "{{ cc_main.domains[cc_domain].domain_password }}"
+
+  tasks:
+    - name: Require explicit authorization for this workstation only
+      ansible.builtin.assert:
+        that:
+          - cybercore_repair_ws01 | default(false) is sameas true
+          - inventory_hostname == 'ws01'
+          - ansible_play_hosts_all == ['ws01']
+        fail_msg: Set cybercore_repair_ws01 to boolean true and limit this manual recovery to ws01.
+
+    - name: Validate the saved generated lab name before reading any files
+      ansible.builtin.assert:
+        that:
+          - domain_name is defined
+          - domain_name is string
+          - domain_name is match('^CC-[A-Za-z0-9][A-Za-z0-9._-]{0,59}$')
+          - "'..' not in domain_name"
+        fail_msg: The saved extra variables must identify a generated CyberCore lab.
+
+    - name: Read the generated main configuration without logging credentials
+      ansible.builtin.include_vars:
+        file: "/opt/goad/ad/{{ domain_name }}/data/config.json"
+        name: cc_main_data
+      no_log: true
+
+    - name: Read the rewritten workstation configuration without logging credentials
+      ansible.builtin.include_vars:
+        file: /opt/goad/extensions/ws01/data/config.json
+        name: cc_extension_data
+      no_log: true
+
+    - name: Read the compiler's nonsecret identity report
+      ansible.builtin.include_vars:
+        file: "/opt/goad/ad/{{ domain_name }}/.cybercore/result.json"
+        name: cc_report
+
+    - name: Require matching generated workstation identities
+      ansible.builtin.assert:
+        that:
+          - cc_report.lab == domain_name
+          - cc_extension.hosts.ws01.type == 'workstation'
+          - cc_name is string
+          - cc_name is match('^[A-Za-z0-9](?:[A-Za-z0-9-]{0,13}[A-Za-z0-9])?$')
+          - not (cc_name is match('^[0-9]+$'))
+          - cc_domain is string
+          - cc_domain | length <= 253
+          - cc_domain is match('(?i)^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?(?:[.][a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)+$')
+          - cc_domain in cc_main.domains
+          - cc_main.domains[cc_domain].dc in cc_main.hosts
+          - cc_main.hosts[cc_main.domains[cc_domain].dc].domain == cc_domain
+          - cc_report.identities | selectattr('name', 'equalto', 'ws01') | list | length == 1
+          - ((cc_report.identities | selectattr('name', 'equalto', 'ws01') | first).hostname | lower) == (cc_name | lower)
+          - ((cc_report.identities | selectattr('name', 'equalto', 'ws01') | first).domain | lower) == (cc_domain | lower)
+        fail_msg: The workstation configuration and generated lab disagree; do not repair against a different forest.
+
+    - name: Require the generated domain credential before changing this workstation
+      ansible.builtin.assert:
+        that:
+          - cc_domain_password is string
+          - cc_domain_password | length > 0
+      no_log: true
+
+    - name: Read current identity, pending name, trust, and UTC clock
+      ansible.windows.win_shell: |
+        $c = Get-CimInstance Win32_ComputerSystem
+        $pending = (Get-ItemProperty 'HKLM:\SYSTEM\CurrentControlSet\Control\ComputerName\ComputerName').ComputerName
+        $secure = $false
+        if ($c.PartOfDomain) {
+          try { $secure = [bool](Test-ComputerSecureChannel -ErrorAction Stop) } catch {}
+        }
+        [pscustomobject]@{
+          hostname=$c.Name; pending_hostname=$pending; domain=$c.Domain
+          joined=[bool]$c.PartOfDomain; domain_role=[int]$c.DomainRole
+          secure_channel=$secure; utc_epoch=[DateTimeOffset]::UtcNow.ToUnixTimeSeconds()
+        } | ConvertTo-Json -Compress
+      register: cc_identity_read
+      changed_when: false
+
+    - name: Decode the nonsecret identity report
+      ansible.builtin.set_fact:
+        cc_before: "{{ cc_identity_read.stdout | trim | from_json }}"
+
+    - name: Refuse an unexpected machine, domain, or unsynchronized clock
+      ansible.builtin.assert:
+        that:
+          - cc_before.domain_role | int < 4
+          - (not (cc_before.joined | bool)) or (cc_before.domain | lower == cc_domain | lower)
+          - ((cc_before.utc_epoch | int) - (lookup('pipe', 'date -u +%s') | int)) | abs < 120
+        fail_msg: This recovery requires a workstation in the expected forest or a workgroup, with synchronized UTC clocks.
+
+    - name: Check whether this workstation has Cloudbase-Init
+      ansible.windows.win_service:
+        name: cloudbase-init
+      register: cc_cloudbase
+
+    - name: Give this GOAD workstation sole ownership of its hostname
+      ansible.windows.win_service:
+        name: cloudbase-init
+        state: stopped
+        start_mode: disabled
+      when: cc_cloudbase.exists | default(false)
+
+    - name: Repair identity only when membership or hostname is unhealthy
+      when: >-
+        not (cc_before.secure_channel | bool)
+        or not (cc_before.joined | bool)
+        or (cc_before.hostname | lower) != (cc_name | lower)
+        or (cc_before.pending_hostname | lower) != (cc_name | lower)
+      block:
+        - name: Leave the broken membership using the installed Ansible module
+          block:
+            - name: Move WS01 to a temporary workgroup
+              ansible.windows.win_domain_membership:
+                state: workgroup
+                workgroup_name: WORKGROUP
+                domain_admin_user: "{{ cc_domain_user }}"
+                domain_admin_password: "{{ cc_domain_password }}"
+              no_log: true
+          rescue:
+            # The installed module's Remove-Computer call has no fallback for
+            # the current hostname having no corresponding AD account. Option
+            # zero requests local unjoin without disabling/deleting AD objects.
+            - name: Detach locally without modifying an AD computer account
+              ansible.windows.win_powershell:
+                error_action: stop
+                script: |
+                  param([string]$DomainUser, [string]$DomainPassword)
+                  $c = Get-CimInstance Win32_ComputerSystem
+                  if (-not $c.PartOfDomain) {
+                    $Ansible.Changed = $false
+                    return
+                  }
+                  $r = Invoke-CimMethod -InputObject $c -MethodName UnjoinDomainOrWorkgroup -Arguments @{
+                    UserName=$DomainUser
+                    Password=$DomainPassword
+                    FUnjoinOptions=[uint32]0
+                  }
+                  if ([uint32]$r.ReturnValue -ne 0) {
+                    throw "Local unjoin failed with Windows code $($r.ReturnValue); stop recovery."
+                  }
+                  $Ansible.Changed = $true
+                parameters:
+                  DomainUser: "{{ cc_domain_user }}"
+                  DomainPassword: "{{ cc_domain_password }}"
+              no_log: true
+
+        - name: Reboot after leaving the broken membership
+          ansible.windows.win_reboot:
+            reboot_timeout: 900
+            post_reboot_delay: 30
+
+        - name: Require a clean workgroup state before joining again
+          ansible.windows.win_shell: |
+            $c = Get-CimInstance Win32_ComputerSystem
+            if ($c.PartOfDomain) {
+              throw 'The workgroup transition did not complete; stop recovery.'
+            }
+            # A name already pending before recovery can take effect here.
+            $knownNames = @('{{ cc_before.hostname | replace("'", "''") }}', '{{ cc_before.pending_hostname | replace("'", "''") }}')
+            if ($knownNames -inotcontains $c.Name) {
+              throw 'The machine identity changed unexpectedly; stop recovery.'
+            }
+          changed_when: false
+
+        - name: Join the existing WS01 identity using generated lab credentials
+          ansible.windows.win_domain_membership:
+            state: domain
+            dns_domain_name: "{{ cc_domain }}"
+            hostname: "{{ cc_name }}"
+            domain_admin_user: "{{ cc_domain_user }}"
+            domain_admin_password: "{{ cc_domain_password }}"
+          no_log: true
+
+        - name: Reboot after the canonical hostname and domain join
+          ansible.windows.win_reboot:
+            reboot_timeout: 900
+            post_reboot_delay: 60
+
+    - name: Require canonical active and pending names plus a working secure channel
+      ansible.windows.win_shell: |
+        $c = Get-CimInstance Win32_ComputerSystem
+        $pending = (Get-ItemProperty 'HKLM:\SYSTEM\CurrentControlSet\Control\ComputerName\ComputerName').ComputerName
+        $secure = $false
+        try { $secure = [bool](Test-ComputerSecureChannel -ErrorAction Stop) } catch {}
+        [pscustomobject]@{
+          hostname=$c.Name; pending_hostname=$pending; domain=$c.Domain
+          joined=[bool]$c.PartOfDomain; secure_channel=$secure
+        } | ConvertTo-Json -Compress
+        if ($c.Name -ine '{{ cc_name }}' -or $pending -ine '{{ cc_name }}' -or
+            $c.Domain -ine '{{ cc_domain }}' -or -not $c.PartOfDomain -or -not $secure) {
+          throw 'WS01 identity/trust verification failed.'
+        }
+      register: cc_final_identity
+      changed_when: false
+
+    - name: Report the verified nonsecret identity
+      ansible.builtin.debug:
+        msg: "{{ cc_final_identity.stdout | trim | from_json }}"
