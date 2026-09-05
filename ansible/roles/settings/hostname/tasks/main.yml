@@ -1,3 +1,22 @@
+- name: Let CyberCore manage this GOAD guest's hostname after bootstrap
+  when: cybercore_manage_hostname | default(false) | bool
+  block:
+    - name: Check for Cloudbase-Init on this guest
+      ansible.windows.win_service:
+        name: cloudbase-init
+      register: cybercore_cloudbase_service
+
+    # A clone's config drive carries its Proxmox display name. Leaving the
+    # service automatic can overwrite GOAD's hostname on a later reboot and
+    # break the computer account's secure channel. CyberCore has already
+    # created its bootstrap account before this role runs.
+    - name: Stop Cloudbase-Init before GOAD sets the computer identity
+      ansible.windows.win_service:
+        name: cloudbase-init
+        state: stopped
+        start_mode: disabled
+      when: cybercore_cloudbase_service.exists | default(false)
+
 - name: "Change the hostname"
   win_hostname:
     name: "{{hostname}}"
@@ -8,3 +27,15 @@
     reboot_timeout: 600
     post_reboot_delay: 30
   when: win_hostname.reboot_required
+
+- name: Verify GOAD's active and pending hostnames before domain operations
+  ansible.windows.win_shell: |
+    $ErrorActionPreference = 'Stop'
+    $expected = '{{ hostname | replace("'", "''") }}'
+    $active = (Get-ItemProperty -LiteralPath 'HKLM:\SYSTEM\CurrentControlSet\Control\ComputerName\ActiveComputerName').ComputerName
+    $pending = (Get-ItemProperty -LiteralPath 'HKLM:\SYSTEM\CurrentControlSet\Control\ComputerName\ComputerName').ComputerName
+    if ($active -ine $expected -or $pending -ine $expected) {
+      throw "GOAD hostname is not stable: expected '$expected', active '$active', pending '$pending'."
+    }
+  changed_when: false
+  when: cybercore_manage_hostname | default(false) | bool

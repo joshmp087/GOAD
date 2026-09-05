@@ -30,6 +30,13 @@ failure. CyberCore checks its identity report and content hashes before running
 the GOAD playbooks, then checks actual Windows domain membership and hostnames
 before marking the lane ready.
 
+CyberCore controllers set `cybercore_manage_hostname: true` after creating the
+Windows bootstrap account. With this opt-in, the GOAD hostname role stops and
+disables Cloudbase-Init on those managed guests before renaming them, then checks
+both active and pending computer names. This prevents a later reboot from
+restoring the Proxmox display name and breaking domain membership. The default
+is off for other GOAD callers; reusable workstation templates are not modified.
+
 The helper verifies every consumed source file against `manifests/*.json` before
 writing. UTF-8 source hashes use LF line endings; binary files are checked and
 copied byte for byte. Generated files are staged, shared playbook and extension
