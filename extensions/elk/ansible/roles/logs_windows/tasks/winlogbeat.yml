@@ -63,7 +63,9 @@
   win_shell: .\install-service-winlogbeat.ps1
   args:
     chdir: "{{ winlogbeat_service.install_path_64 }}\\winlogbeat-{{ winlogbeat_service.version }}-windows-x86_64\\"
-  when: not winlogbeat_folder.stat.exists
+  # Extraction can finish before an interrupted run installs the service.
+  # Also reinstall after the earlier version-mismatch uninstall task.
+  when: not winlogbeat_installed.exists or not winlogbeat_folder.stat.exists
   notify: restart-winlogbeat
 
 - name: Remove other winlogbeat installations

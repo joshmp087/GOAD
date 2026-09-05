@@ -1,10 +1,8 @@
 - name: Install winlogbeat
   import_tasks: winlogbeat.yml
 
-- name: Set winlogbeat config file
-  win_copy:
-    src: winlogbeat.yml
-    dest: C:\ProgramData\chocolatey\lib\winlogbeat\tools\
+# winlogbeat.yml renders the lane's ELK endpoint and copies the result into the
+# versioned Elastic installation. There is no separate Chocolatey configuration.
 
 # sysmon install (https://github.com/NVISOsecurity/ansible-sysmon)
 - name: Create directory
