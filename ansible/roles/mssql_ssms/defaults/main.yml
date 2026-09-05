@@ -1,0 +1,17 @@
+---
+# Keep the lab on the SSMS 18 installer family. aka.ms/ssmsfullsetup now serves
+# the SSMS 22 Visual Studio bootstrapper, which uses different command switches.
+# Version and download: https://learn.microsoft.com/en-us/ssms/release-notes-19#18121
+# SHA256 and product ID: Microsoft's winget-pkgs manifest for 18.12.1 (en-US):
+# https://github.com/microsoft/winget-pkgs/blob/master/manifests/m/Microsoft/SQLServerManagementStudio/18.12.1/Microsoft.SQLServerManagementStudio.installer.yaml
+ssms_version: '18.12.1'
+ssms_download_url: 'https://download.microsoft.com/download/8/a/8/8a8073d2-2e00-472b-9a18-88361d105915/SSMS-Setup-ENU.exe'
+ssms_installer_sha256: 'b98e97b83e1068ce322999be7585868815d3e8a7f2bd8d50a65b501ddc4f0103'
+ssms_product_id: '{09a17706-821c-4c52-8fcd-ace4783362bb}'
+# A versioned cache cannot accidentally reuse the old, unpinned bootstrapper.
+ssms_installer_path: 'C:\setup\mssql\SSMS-{{ ssms_version }}-ENU.exe'
+ssms_executable_path: 'C:\Program Files (x86)\Microsoft SQL Server Management Studio 18\Common7\IDE\Ssms.exe'
+ssms_log_path: 'C:\setup\mssql\SSMS-{{ ssms_version }}-install.log'
+ssms_download_timeout: 1800
+ssms_install_timeout: 2700
+ssms_poll_interval: 15

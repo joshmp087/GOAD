@@ -1,25 +1,74 @@
-- name: check SQL Server Manager Studio installer exists
-  win_stat:
-    path: c:\setup\mssql\SSMS_installer.exe
-  register: ssms_installer_file
-
-- name: get the installer
-  win_get_url:
-      url: 'https://aka.ms/ssmsfullsetup'
-      dest: 'c:\setup\mssql\SSMS_installer.exe'
-  when: not ssms_installer_file.stat.exists
-
-- name: check SSMS installation already done
-  win_stat:
-    path: "C:\\Program Files (x86)\\Microsoft SQL Server Management Studio 18"
+---
+- name: Check the SSMS executable is installed
+  ansible.windows.win_stat:
+    path: '{{ ssms_executable_path }}'
+    get_checksum: false
   register: ssms_installation
 
-- name: Install SSMS
-  win_command: c:\setup\mssql\SSMS_installer.exe /install /quiet /norestart
-  register: install_ssmss
+- name: Install the pinned SQL Server Management Studio release
   when: not ssms_installation.stat.exists
+  block:
+    - name: Ensure the SSMS installer and log directory exists
+      ansible.windows.win_file:
+        path: 'C:\setup\mssql'
+        state: directory
 
-- name: Reboot after install
-  win_reboot:
-    reboot_timeout: 600
-  when: not ssms_installation.stat.exists
+    - name: Download and verify the SSMS installer
+      ansible.windows.win_get_url:
+        url: '{{ ssms_download_url }}'
+        dest: '{{ ssms_installer_path }}'
+        checksum: '{{ ssms_installer_sha256 }}'
+        checksum_algorithm: sha256
+        url_timeout: 60
+      async: '{{ ssms_download_timeout }}'
+      poll: '{{ ssms_poll_interval }}'
+
+    - name: Install SSMS with a bounded wait and persistent setup log
+      ansible.windows.win_package:
+        path: '{{ ssms_installer_path }}'
+        product_id: '{{ ssms_product_id }}'
+        creates_path: '{{ ssms_executable_path }}'
+        state: present
+        # SSMS 18 uses the Burn installer. /log is an EXE argument, not the
+        # win_package log_path option (which applies only to MSI/MSP packages).
+        # The lab uses SSMS, without the bundled Azure Data Studio dependency.
+        arguments: '/install /quiet /norestart /log "{{ ssms_log_path }}" DoNotInstallAzureDataStudio=1'
+        expected_return_code: [0, 3010]
+      # An interactive runas token avoids installer API/DPAPI restrictions from
+      # WinRM, while using the same administrator credentials as the connection.
+      become: true
+      become_method: runas
+      become_user: '{{ ansible_user }}'
+      vars:
+        ansible_become_password: '{{ ansible_password }}'
+      async: '{{ ssms_install_timeout }}'
+      poll: '{{ ssms_poll_interval }}'
+      register: ssms_install_result
+
+    - name: Reboot when SSMS setup requests it
+      ansible.windows.win_reboot:
+        reboot_timeout: 600
+      when: ssms_install_result.reboot_required | default(false)
+
+    - name: Check SSMS setup produced the executable
+      ansible.windows.win_stat:
+        path: '{{ ssms_executable_path }}'
+        get_checksum: false
+      register: ssms_installed
+
+    - name: Require a complete SSMS installation
+      ansible.builtin.assert:
+        that:
+          - ssms_installed.stat.exists
+          - ssms_installed.stat.isreg | default(false)
+        fail_msg: 'SSMS setup completed without {{ ssms_executable_path }}. Inspect {{ ssms_log_path }} on {{ inventory_hostname }}.'
+
+  rescue:
+    - name: Report the SSMS failure and setup log location
+      ansible.builtin.fail:
+        msg: >-
+          SSMS {{ ssms_version }} provisioning failed on {{ inventory_hostname }}:
+          {{ ansible_failed_result.msg | default(ansible_failed_result) }}.
+          Inspect {{ ssms_log_path }} and its companion logs in C:\setup\mssql.
+          Download and installation waits are bounded at {{ ssms_download_timeout }}
+          and {{ ssms_install_timeout }} seconds respectively; this lane is incomplete.
