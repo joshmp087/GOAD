@@ -1,0 +1,77 @@
+{
+  "schema_version": 2,
+  "lab": "GOAD-Mini",
+  "derived_from": "ad/GOAD-Mini",
+  "goad_ref": "4c9a49ea0413631f0e86adc67662aa021b4498d4",
+  "goad_repo": "https://github.com/joshmp087/GOAD.git",
+  "chain": [
+    "build.yml",
+    "ad-servers.yml",
+    "ad-parent_domain.yml",
+    "ad-data.yml",
+    "ad-relations.yml",
+    "adcs.yml",
+    "ad-acl.yml",
+    "security.yml",
+    "vulnerabilities.yml"
+  ],
+  "chain_source": {
+    "file": "playbooks.yml",
+    "key": "GOAD-Mini",
+    "why": "Copied verbatim from the fork's top-level playbooks.yml. GOAD-Mini has its OWN key there, so a generated lab derived from it must carry this chain explicitly and must never fall through to `default:` \u2014 that is the full 16-play GOAD chain including ad-child_domain.yml, ad-trusts.yml and a hard wait5m.yml, which a single-domain lab cannot satisfy and which dies 15-25 minutes into a ~90 minute run.",
+    "sha256": "633f9b296f7b676739d0e3962376eebb0a0ad0bb7df545e8cd2ac981d6aeca33"
+  },
+  "stock": {
+    "forest_root": "sevenkingdoms.local",
+    "root_dn": "DC=sevenkingdoms,DC=local",
+    "netbios": "SEVENKINGDOMS",
+    "first_label": "sevenkingdoms",
+    "hosts": {
+      "dc01": {
+        "hostname": "kingslanding",
+        "roster_name": "DC01",
+        "domain": "sevenkingdoms.local"
+      }
+    }
+  },
+  "files": {
+    "data/config.json": {
+      "encoding": "utf8",
+      "sha256": "3d6e515c011c955d3d7d09002a59908a54918a95af98496afd20bdce428f98d6"
+    },
+    "data/inventory": {
+      "encoding": "utf8",
+      "sha256": "fde70b7dfe486a7f4e1885e38d1e6d88020f7457b415492fa6af7ee4f3228a9a"
+    },
+    "providers/proxmox/inventory": {
+      "encoding": "utf8",
+      "sha256": "cef6b3ac38f5f4cdb46bb4db08423cf00e12575e8d45d12d43dfacd99b1ceb40"
+    },
+    "files/dc01/templates/ESC1.json": {
+      "encoding": "utf-16le-bom",
+      "sha256": "0a61650335fefdeb0ab78e583874f9008fc64b5118eadb71dde40f1619107374",
+      "why": "UTF-16LE with a byte-order mark, consumed on Windows by the adcs_templates role. It has to travel as BYTES end to end: reading it into a utf8 string and re-writing it mangles every character silently, the file still parses as SOMETHING, and the only symptom is an ESC1 certificate template that never gets planted. The external checkout must preserve these bytes."
+    }
+  },
+  "resync_note": "Re-syncing when GOAD_REF moves is mechanical: point at the same paths under the new ref, re-copy ESC1.json as bytes, re-apply the dropped list above, refresh every sha256 here, and run front-end/test/goad-base-labs-vendor.test.js. goad_ref must move in the SAME commit as GOAD_REF in infrastructure/proxmox-templates/vm-templates/bake-goad-controller-vm.sh \u2014 the test asserts they are equal, because a vendored tree describing a different GOAD than the controller runs is a lab that provisions objects the playbooks do not expect.",
+  "lab_definition": {
+    "displayName": "GOAD-Mini (1 Win VM, single domain)",
+    "description": "Minimal AD lab \u2014 just DC01. Fastest to deploy (~10 min).",
+    "forestRoot": "sevenkingdoms.local",
+    "domains": [
+      "sevenkingdoms.local"
+    ],
+    "childSubdomain": null,
+    "vms": [
+      {
+        "name": "DC01",
+        "role": "dc",
+        "os": "Windows Server 2019",
+        "template_vmid": 1004,
+        "ipOctet": 10,
+        "nic_model": "e1000"
+      }
+    ]
+  },
+  "source_contract": "External GOAD checkout only. GOAD_SOURCE_DIR selects the root. UTF-8 content hashes use LF line endings; binary and UTF-16 content hashes use exact bytes. Every consumed file is verified before compilation; no upstream payload is stored in CyberCore."
+}

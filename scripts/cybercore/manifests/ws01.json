@@ -1,0 +1,27 @@
+{
+  "schema_version": 2,
+  "extension": "ws01",
+  "derived_from": "extensions/ws01",
+  "goad_ref": "4c9a49ea0413631f0e86adc67662aa021b4498d4",
+  "goad_repo": "https://github.com/joshmp087/GOAD.git",
+  "top_level_key": "lab_extension",
+  "stock": {
+    "forest_root": "sevenkingdoms.local",
+    "root_dn": "DC=sevenkingdoms,DC=local",
+    "netbios": "SEVENKINGDOMS",
+    "first_label": "sevenkingdoms",
+    "hosts": {
+      "ws01": {
+        "hostname": "casterlyrock",
+        "roster_name": "ws01"
+      }
+    }
+  },
+  "files": {
+    "data/config.json": {
+      "encoding": "utf8",
+      "sha256": "8a19b18d1299ba995cfc26a4e08a411264f57062b3806c9c759999b1d2172621"
+    }
+  },
+  "source_contract": "External GOAD checkout only. GOAD_SOURCE_DIR selects the root. UTF-8 content hashes use LF line endings; binary and UTF-16 content hashes use exact bytes. Every consumed file is verified before compilation; no upstream payload is stored in CyberCore."
+}

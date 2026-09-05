@@ -1,0 +1,27 @@
+{
+  "schema_version": 2,
+  "extension": "lx01",
+  "derived_from": "extensions/lx01",
+  "goad_ref": "4c9a49ea0413631f0e86adc67662aa021b4498d4",
+  "goad_repo": "https://github.com/joshmp087/GOAD.git",
+  "top_level_key": "lab_extension",
+  "stock": {
+    "forest_root": "sevenkingdoms.local",
+    "root_dn": "DC=sevenkingdoms,DC=local",
+    "netbios": "SEVENKINGDOMS",
+    "first_label": "sevenkingdoms",
+    "hosts": {
+      "lx01": {
+        "hostname": "dragonstone",
+        "roster_name": "lx01"
+      }
+    }
+  },
+  "files": {
+    "data/config.json": {
+      "encoding": "utf8",
+      "sha256": "7498683c1aa78d22d8ce190379908b6d82ed38bcf11dc7cbcf6d419f8446ee02"
+    }
+  },
+  "source_contract": "External GOAD checkout only. GOAD_SOURCE_DIR selects the root. UTF-8 content hashes use LF line endings; binary and UTF-16 content hashes use exact bytes. Every consumed file is verified before compilation; no upstream payload is stored in CyberCore."
+}

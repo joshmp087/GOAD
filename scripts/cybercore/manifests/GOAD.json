@@ -1,0 +1,424 @@
+{
+  "schema_version": 2,
+  "lab": "GOAD",
+  "derived_from": "ad/GOAD",
+  "goad_ref": "4c9a49ea0413631f0e86adc67662aa021b4498d4",
+  "goad_repo": "https://github.com/joshmp087/GOAD.git",
+  "chain": [
+    "build.yml",
+    "ad-servers.yml",
+    "ad-parent_domain.yml",
+    "ad-child_domain.yml",
+    "wait5m.yml",
+    "ad-members.yml",
+    "ad-trusts.yml",
+    "ad-data.yml",
+    "ad-gmsa.yml",
+    "laps.yml",
+    "ad-relations.yml",
+    "adcs.yml",
+    "ad-acl.yml",
+    "servers.yml",
+    "security.yml",
+    "vulnerabilities.yml"
+  ],
+  "chain_source": {
+    "file": "playbooks.yml",
+    "key": "default",
+    "sha256": "633f9b296f7b676739d0e3962376eebb0a0ad0bb7df545e8cd2ac981d6aeca33"
+  },
+  "lab_definition": {
+    "displayName": "GOAD \u2014 full (5 Win VMs, 3 domains, 2 forests)",
+    "description": "Full GOAD lab with cross-forest scenarios (Essos). Heaviest variant.",
+    "forestRoot": "sevenkingdoms.local",
+    "domains": [
+      "sevenkingdoms.local",
+      "north.sevenkingdoms.local",
+      "essos.local"
+    ],
+    "childSubdomain": "north",
+    "vms": [
+      {
+        "name": "DC01",
+        "role": "dc",
+        "os": "Windows Server 2019",
+        "template_vmid": 1004,
+        "ipOctet": 10,
+        "nic_model": "e1000"
+      },
+      {
+        "name": "DC02",
+        "role": "dc",
+        "os": "Windows Server 2019",
+        "template_vmid": 1004,
+        "ipOctet": 11,
+        "nic_model": "e1000"
+      },
+      {
+        "name": "DC03",
+        "role": "dc",
+        "os": "Windows Server 2019",
+        "template_vmid": 1004,
+        "ipOctet": 12,
+        "nic_model": "e1000"
+      },
+      {
+        "name": "SRV02",
+        "role": "member",
+        "os": "Windows Server 2019",
+        "template_vmid": 1004,
+        "ipOctet": 22,
+        "nic_model": "e1000"
+      },
+      {
+        "name": "SRV03",
+        "role": "member",
+        "os": "Windows Server 2019",
+        "template_vmid": 1004,
+        "ipOctet": 23,
+        "nic_model": "e1000"
+      }
+    ]
+  },
+  "stock": {
+    "forest_root": "sevenkingdoms.local",
+    "netbios": "SEVENKINGDOMS",
+    "first_label": "sevenkingdoms",
+    "hosts": {
+      "dc01": {
+        "hostname": "kingslanding",
+        "roster_name": "DC01",
+        "domain": "sevenkingdoms.local"
+      },
+      "dc02": {
+        "hostname": "winterfell",
+        "roster_name": "DC02",
+        "domain": "north.sevenkingdoms.local"
+      },
+      "srv02": {
+        "hostname": "castelblack",
+        "roster_name": "SRV02",
+        "domain": "north.sevenkingdoms.local"
+      },
+      "dc03": {
+        "hostname": "meereen",
+        "roster_name": "DC03",
+        "domain": "essos.local"
+      },
+      "srv03": {
+        "hostname": "braavos",
+        "roster_name": "SRV03",
+        "domain": "essos.local"
+      }
+    },
+    "domains": {
+      "essos.local": {
+        "netbios": "ESSOS",
+        "dc": "dc03",
+        "kind": "partner"
+      },
+      "north.sevenkingdoms.local": {
+        "netbios": "NORTH",
+        "dc": "dc02",
+        "kind": "child"
+      },
+      "sevenkingdoms.local": {
+        "netbios": "SEVENKINGDOMS",
+        "dc": "dc01",
+        "kind": "root"
+      }
+    }
+  },
+  "files": {
+    "data/config.json": {
+      "encoding": "utf8",
+      "sha256": "af8ac0390eab55476ae3dcd5264b698c9f4e1e74b9ac8dea26e2da2f2e88b442"
+    },
+    "data/inventory": {
+      "encoding": "utf8",
+      "sha256": "7cfdb737e4261652473205da610c38785ee08d1b941659a5cfdc5ea6bd545cf0"
+    },
+    "providers/proxmox/inventory": {
+      "encoding": "utf8",
+      "sha256": "73c85894cf8823f8df08938e23bdeacd2ac046efe4ef6b1f45f79b752841ac6c"
+    },
+    "files/dc02/bot_rdp.ps1": {
+      "encoding": "utf8",
+      "sha256": "4ead342fe794a1260093db797d73ce421cd1724a58a8ee6df14b0bf6e2d744b5"
+    },
+    "files/dc02/sysvol_scripts/script.ps1": {
+      "encoding": "utf8",
+      "sha256": "4292a1469e7deaf5d9b2c4a9e57e8bd5bd78d5a00bff9bbc63a156ebe51aa532"
+    },
+    "files/dc02/sysvol_scripts/secret.ps1": {
+      "encoding": "utf8",
+      "sha256": "e53e8dc9da5ed114683565b91578996854752aa37852ec863c4b000502fc8729"
+    },
+    "files/srv02/all/arya.txt": {
+      "encoding": "utf8",
+      "sha256": "a7c481a966a2ea993731c83909eb9ab34431fce64fe14e5bf0cea3102eb9a3ae"
+    },
+    "files/srv02/wwwroot/bin/Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll": {
+      "encoding": "binary",
+      "sha256": "896ea7319377bf756bd91fd1db125e68c474080381cb3bd4f04a6b55c1125e44"
+    },
+    "files/srv02/wwwroot/bin/roslyn/csc.exe": {
+      "encoding": "binary",
+      "sha256": "29fc4e96f2553c5c309ee321a18ee5ad18686b5586e64422c1a7870748ce908d"
+    },
+    "files/srv02/wwwroot/bin/roslyn/csc.exe.config": {
+      "encoding": "utf8",
+      "sha256": "fa216c6fa405aaa1e47337b57f08a5d649f450a929ed27c5f24685c8d70ea981"
+    },
+    "files/srv02/wwwroot/bin/roslyn/csc.rsp": {
+      "encoding": "utf8",
+      "sha256": "483d67166be6d6d942c0768f02dbb40e1f9665e51d58006f313093254780349d"
+    },
+    "files/srv02/wwwroot/bin/roslyn/csi.exe": {
+      "encoding": "binary",
+      "sha256": "148d50d751c25f4422aff73b9ac8256ac1a952411d03493afe5531c4f9bcc31f"
+    },
+    "files/srv02/wwwroot/bin/roslyn/csi.exe.config": {
+      "encoding": "utf8",
+      "sha256": "cce26cd6d2ec818b9e2fcfadd208d6f5f559e15b297b5ca6410a32f389df3f33"
+    },
+    "files/srv02/wwwroot/bin/roslyn/csi.rsp": {
+      "encoding": "utf8",
+      "sha256": "2f336e5c12fe0b02f102b812acb44004abc065814d985f7c817959f5163a5371"
+    },
+    "files/srv02/wwwroot/bin/roslyn/Microsoft.Build.Tasks.CodeAnalysis.dll": {
+      "encoding": "binary",
+      "sha256": "7ea30b82f86e76b0a76716204a9c55ed1091f4113a8baab0fdd08683da66e9e0"
+    },
+    "files/srv02/wwwroot/bin/roslyn/Microsoft.CodeAnalysis.CSharp.dll": {
+      "encoding": "binary",
+      "sha256": "a8da63084e18d227a88f66af443541dbb1805b02dc9c11adb632662665850bd1"
+    },
+    "files/srv02/wwwroot/bin/roslyn/Microsoft.CodeAnalysis.CSharp.Scripting.dll": {
+      "encoding": "binary",
+      "sha256": "f9d1b24702d740118875a94762a7107f51c2223920f69d766a3e312e05d4183d"
+    },
+    "files/srv02/wwwroot/bin/roslyn/Microsoft.CodeAnalysis.dll": {
+      "encoding": "binary",
+      "sha256": "0192c7052cc2fb93e2c8696675e6dc3a43c96a2205148e94382c0dd5a77bd982"
+    },
+    "files/srv02/wwwroot/bin/roslyn/Microsoft.CodeAnalysis.Scripting.dll": {
+      "encoding": "binary",
+      "sha256": "b08e02093c99fd95dfcb8f3f6d316a9ae332f3a9b42e3220d427090d1038184c"
+    },
+    "files/srv02/wwwroot/bin/roslyn/Microsoft.CodeAnalysis.VisualBasic.dll": {
+      "encoding": "binary",
+      "sha256": "199cc3cdd3c84c0bece276f0d122438bde6efcf9c27ed19a2f6bce236499afa1"
+    },
+    "files/srv02/wwwroot/bin/roslyn/Microsoft.CSharp.Core.targets": {
+      "encoding": "utf8",
+      "sha256": "da9d49d239d04f0a821d4585f7e49a44b140b1424ebc719e94fa5e9406a73316"
+    },
+    "files/srv02/wwwroot/bin/roslyn/Microsoft.DiaSymReader.Native.amd64.dll": {
+      "encoding": "binary",
+      "sha256": "95f301012ed09c09c9eb61a23a2803a7043e6a33f9c8957746379b610a52978d"
+    },
+    "files/srv02/wwwroot/bin/roslyn/Microsoft.DiaSymReader.Native.x86.dll": {
+      "encoding": "binary",
+      "sha256": "f21da9fb831ac943736135b6ee109a4b352511b8d6c07cb03c66b61996d1ddc9"
+    },
+    "files/srv02/wwwroot/bin/roslyn/Microsoft.Managed.Core.targets": {
+      "encoding": "utf8",
+      "sha256": "25860b7d5a116aff5e11c88b82d2263e8f24b99288988607d7f1e060f95cde83"
+    },
+    "files/srv02/wwwroot/bin/roslyn/Microsoft.VisualBasic.Core.targets": {
+      "encoding": "utf8",
+      "sha256": "fc1e4a9b9904605d935f69d1d487f5de3a0300fdf436da9643b72967cb9a517a"
+    },
+    "files/srv02/wwwroot/bin/roslyn/Microsoft.Win32.Primitives.dll": {
+      "encoding": "binary",
+      "sha256": "e281d04d35118b7f3a2406014333e0581b74ea4b62f4f2388ad3ad8b32223c83"
+    },
+    "files/srv02/wwwroot/bin/roslyn/System.AppContext.dll": {
+      "encoding": "binary",
+      "sha256": "ea3a3003e10f44280074810934261b61a209c1ec1e9029b932742c853bde743e"
+    },
+    "files/srv02/wwwroot/bin/roslyn/System.Collections.Immutable.dll": {
+      "encoding": "binary",
+      "sha256": "eaf7deaa83774d21df863b73cb9bca25b6e869a45d90af6a6912c8767ada4fb1"
+    },
+    "files/srv02/wwwroot/bin/roslyn/System.Console.dll": {
+      "encoding": "binary",
+      "sha256": "083f8649db8063f231eb38af39a450cc4cb9c8d381804bd189bcf589eb9f0951"
+    },
+    "files/srv02/wwwroot/bin/roslyn/System.Diagnostics.DiagnosticSource.dll": {
+      "encoding": "binary",
+      "sha256": "d22133818a30313e0becf010d78a556a56b34ea361dbd33588c9817631fed540"
+    },
+    "files/srv02/wwwroot/bin/roslyn/System.Diagnostics.FileVersionInfo.dll": {
+      "encoding": "binary",
+      "sha256": "3b031a6e7bd56bd5264b4a7eac0700fcc41c026c39b8a8c5488910d4dd07fbf1"
+    },
+    "files/srv02/wwwroot/bin/roslyn/System.Diagnostics.StackTrace.dll": {
+      "encoding": "binary",
+      "sha256": "76cf1410724d5ab27ed66d43e68d25cc6952076c8914fa1692bab4c406928239"
+    },
+    "files/srv02/wwwroot/bin/roslyn/System.Globalization.Calendars.dll": {
+      "encoding": "binary",
+      "sha256": "8e5a549c6c0339a5f88217e6b5b75b745a3c20fe97081b48062b684c4fa5d441"
+    },
+    "files/srv02/wwwroot/bin/roslyn/System.IO.Compression.dll": {
+      "encoding": "binary",
+      "sha256": "b963eb95627b5f223e813fce8a53e6c9d72891714923de7263111473faebf3ef"
+    },
+    "files/srv02/wwwroot/bin/roslyn/System.IO.Compression.ZipFile.dll": {
+      "encoding": "binary",
+      "sha256": "b5c12e9099643e2eda9b49edd0d98bdaed153c72a7e8e6235d8e78714402d16a"
+    },
+    "files/srv02/wwwroot/bin/roslyn/System.IO.FileSystem.dll": {
+      "encoding": "binary",
+      "sha256": "2d917d520488b56673e74ac9dc610a2488ae70a7ebbbbff097c2e855ba1ef590"
+    },
+    "files/srv02/wwwroot/bin/roslyn/System.IO.FileSystem.Primitives.dll": {
+      "encoding": "binary",
+      "sha256": "02a6f9601aa48557fc5c3bfed80e31762a0785b9f78ec568c9f2f0722eeb9c0b"
+    },
+    "files/srv02/wwwroot/bin/roslyn/System.Net.Http.dll": {
+      "encoding": "binary",
+      "sha256": "b741118740bad14229b30f27ce3883c2c8c0a720dee09a1c7e336fc0fc2073b1"
+    },
+    "files/srv02/wwwroot/bin/roslyn/System.Net.Sockets.dll": {
+      "encoding": "binary",
+      "sha256": "eefa668da7a0d5880f794ad9a9205637997e88ea1fc084e402702eb62d1da120"
+    },
+    "files/srv02/wwwroot/bin/roslyn/System.Reflection.Metadata.dll": {
+      "encoding": "binary",
+      "sha256": "ced3abd81d7d2027235f95bcea93459c457c8147cf62025e4203ae00e5e8d6eb"
+    },
+    "files/srv02/wwwroot/bin/roslyn/System.Runtime.InteropServices.RuntimeInformation.dll": {
+      "encoding": "binary",
+      "sha256": "2f141b72a2af0458993e27559395d8a8cdb0b752d79b1703541a61e728b55237"
+    },
+    "files/srv02/wwwroot/bin/roslyn/System.Security.Cryptography.Algorithms.dll": {
+      "encoding": "binary",
+      "sha256": "6a0f94d33609622abd37b85c071cc8f4676af91923d36b47434222ba8c554acb"
+    },
+    "files/srv02/wwwroot/bin/roslyn/System.Security.Cryptography.Encoding.dll": {
+      "encoding": "binary",
+      "sha256": "91c7c02d46f754193b3988c28050135c804e47dc3456d0c3dde028ac0341fbe2"
+    },
+    "files/srv02/wwwroot/bin/roslyn/System.Security.Cryptography.Primitives.dll": {
+      "encoding": "binary",
+      "sha256": "5a6c8f69a8dea8a775331273aaae707eee2a2743fb1498c3cc4dbab679125d11"
+    },
+    "files/srv02/wwwroot/bin/roslyn/System.Security.Cryptography.X509Certificates.dll": {
+      "encoding": "binary",
+      "sha256": "f415a437f4743355068198b3fc152216526f4af93f02e50bc52f8b91dc4a402a"
+    },
+    "files/srv02/wwwroot/bin/roslyn/System.Text.Encoding.CodePages.dll": {
+      "encoding": "binary",
+      "sha256": "8e85e80455b362d6fbd549e336ca1f7558df3f6c598291e864ddefbced8ed430"
+    },
+    "files/srv02/wwwroot/bin/roslyn/System.Threading.Tasks.Extensions.dll": {
+      "encoding": "binary",
+      "sha256": "2804e53913a5f6b8663f27a902ee8e939559c0991ce02399ff10595392f2340a"
+    },
+    "files/srv02/wwwroot/bin/roslyn/System.ValueTuple.dll": {
+      "encoding": "binary",
+      "sha256": "158a18599e8dabdd292563ea05f885e56f8bf8b23c7efd292f783fbac5a71b22"
+    },
+    "files/srv02/wwwroot/bin/roslyn/System.Xml.ReaderWriter.dll": {
+      "encoding": "binary",
+      "sha256": "cdd78df6e1544f04bb71cd21317fac274c5b05802a061913777cfafbf80e93c1"
+    },
+    "files/srv02/wwwroot/bin/roslyn/System.Xml.XmlDocument.dll": {
+      "encoding": "binary",
+      "sha256": "fe1fda39c8f47007414571f468a1b01fcf9ca12c302f93855fb826f5eca00e67"
+    },
+    "files/srv02/wwwroot/bin/roslyn/System.Xml.XPath.dll": {
+      "encoding": "binary",
+      "sha256": "371c158de72882eb0f1872a3a7ddf20ee4a670a8efa6380e1cf78fe511740acb"
+    },
+    "files/srv02/wwwroot/bin/roslyn/System.Xml.XPath.XDocument.dll": {
+      "encoding": "binary",
+      "sha256": "942a510835856f8bd1a23c4cd8343c71cfa2208b17b5b01aadd808595a045f35"
+    },
+    "files/srv02/wwwroot/bin/roslyn/vbc.exe": {
+      "encoding": "binary",
+      "sha256": "1ea3700276aeb78ca747f82c8c7d44bd962ed894f25efda57702d61f50ea263c"
+    },
+    "files/srv02/wwwroot/bin/roslyn/vbc.exe.config": {
+      "encoding": "utf8",
+      "sha256": "fa216c6fa405aaa1e47337b57f08a5d649f450a929ed27c5f24685c8d70ea981"
+    },
+    "files/srv02/wwwroot/bin/roslyn/vbc.rsp": {
+      "encoding": "utf8",
+      "sha256": "a377f64ef9c255026e3ab9709c9caf507f40f7a1de8fdd523e154668015355ef"
+    },
+    "files/srv02/wwwroot/bin/roslyn/VBCSCompiler.exe": {
+      "encoding": "binary",
+      "sha256": "a16b4d7c6504e27bd269f1d81510c4bc7743e3adf4d8014e60734d1b6aa53d0a"
+    },
+    "files/srv02/wwwroot/bin/roslyn/VBCSCompiler.exe.config": {
+      "encoding": "utf8",
+      "sha256": "3fd2bea10ae581091f8b59c8b5adf93f2c1ede5878461bb3e52c4175334c768f"
+    },
+    "files/srv02/wwwroot/bin/WebApp.dll": {
+      "encoding": "binary",
+      "sha256": "f2c6c83346651e6faa009cfff9e2a45834579d3e036b2057cd351dbd4b09dadb"
+    },
+    "files/srv02/wwwroot/bin/WebApp.pdb": {
+      "encoding": "binary",
+      "sha256": "b223e527840f6da1d1cb3e178f2040145852d7d4b02cc8b1602c612fd082c15b"
+    },
+    "files/srv02/wwwroot/Default.aspx": {
+      "encoding": "utf8",
+      "sha256": "58adc738646502367f4932084cd0edc5c10b41f3885dd73d3666464bd281594a"
+    },
+    "files/srv02/wwwroot/index.html": {
+      "encoding": "utf8",
+      "sha256": "2bc5d99a2b71b60fbf9babd3f1f6d7651433127c010de794b340e40ca2202a9d"
+    },
+    "files/srv02/wwwroot/upload/.gitkeep": {
+      "encoding": "utf8",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "files/srv02/wwwroot/Web.config": {
+      "encoding": "utf8",
+      "sha256": "04d650f0dd6581e7295b4df45e75dca0743ded8fb242964f9595c484f6330fb6"
+    },
+    "scripts/sidhistory.ps1": {
+      "encoding": "utf8",
+      "sha256": "8232548e1b6109b91034a1b5ca4a4825aa9949a8812c4767b78f21e01b4453fa"
+    },
+    "scripts/asrep_roasting.ps1": {
+      "encoding": "utf8",
+      "sha256": "e839d5c3be169e964ae3a732833f4c4c848b44f620cdc96fea6ac6d6b329b90e"
+    },
+    "scripts/constrained_delegation_use_any.ps1": {
+      "encoding": "utf8",
+      "sha256": "a73e60ee2f0aa1bf9897d7eaeec94ef88440a5b0a6ed80f73c2175a0d2fa4142"
+    },
+    "scripts/constrained_delegation_kerb_only.ps1": {
+      "encoding": "utf8",
+      "sha256": "48b59b9ab8e484de2a66f4e8692bbcd3fd32a16a9cb1cab997930ba98da78b74"
+    },
+    "scripts/ntlm_relay.ps1": {
+      "encoding": "utf8",
+      "sha256": "3d80a864ec95f15c542691605ca095d7a35004e3cc76cf8d1587dc9958c3ec40"
+    },
+    "scripts/responder.ps1": {
+      "encoding": "utf8",
+      "sha256": "e77c3d37fc9901028b41e56f0125744b355bc7f71f5e244cf5406e4bc89bfa4b"
+    },
+    "scripts/gpo_abuse.ps1": {
+      "encoding": "utf8",
+      "sha256": "6c0bb27474b2dbd0c4b01da01b0c3488e2b399fabf7579199ff2f39d54b661ca"
+    },
+    "scripts/rdp_scheduler.ps1": {
+      "encoding": "utf8",
+      "sha256": "af1fa86d8cccb9a81addf95aecb30d3a8d93672075c34f7627869445a9f2c0d2"
+    },
+    "scripts/asrep_roasting2.ps1": {
+      "encoding": "utf8",
+      "sha256": "de62094df5490247aafc8e9a5f145857e88fe634868fa15273f57d834727ca7a"
+    }
+  },
+  "resync_note": "All files/ payloads and every scripts[] dependency are pinned byte-for-byte. Shared binary files are content-addressed under _shared; names and credentials inside payloads are not normalised at vendoring time.",
+  "source_contract": "External GOAD checkout only. GOAD_SOURCE_DIR selects the root. UTF-8 content hashes use LF line endings; binary and UTF-16 content hashes use exact bytes. Every consumed file is verified before compilation; no upstream payload is stored in CyberCore."
+}
